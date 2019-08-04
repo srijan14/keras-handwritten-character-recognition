@@ -6,6 +6,7 @@ if __name__=="__main__":
         print("Please provide required parameters")
 
     data_path = sys.argv[1]
-    tmodel = Model()
-    tmodel.load_data(data_path)
-    tmodel.character_model()
+    train_model = Model()
+    train_model.load_data(data_path)
+    train_model.character_model()
+    train_model.train()

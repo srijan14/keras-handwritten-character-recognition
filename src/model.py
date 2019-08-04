@@ -7,7 +7,7 @@ from keras.layers import Dense, Activation, Dropout, Flatten, MaxPooling2D, Batc
 from keras.constraints import maxnorm
 from keras.layers.convolutional import Conv2D
 from keras.utils import np_utils
-from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau
+from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau, CSVLogger
 from keras.optimizers import Adam
 
 from keras import backend as K
@@ -26,7 +26,9 @@ import pickle
 
 class Model:
 
-    MODEL_PATH = "./models/saved-model-{epoch:02d}-{val_acc:.2f}.hdf5"
+    CHECKPOINT_PATH = "./models/cp-{epoch:04d}.ckpt"
+    CHECKPOINT_DIR = os.path.dirname(CHECKPOINT_PATH)
+    LOG_FILE = "./logs/training.log"
     DATA_PATH = "./data/emnist-byclass.mat"
     EARLY_STOP_PATIENCE = 10
     BATCH_SIZE = 128
@@ -60,13 +62,6 @@ class Model:
         Y_train = np_utils.to_categorical(y_train, self.NUM_CLASSES)
         Y_test = np_utils.to_categorical(y_test, self.NUM_CLASSES)
 
-        print('EMNIST data loaded: train:', len(X_train), 'test:', len(X_test))
-        print('X_train:', X_train.shape)
-        print('y_train:', y_train.shape)
-        print('X_test:', X_test.shape)
-        print('y_test:', y_test.shape)
-
-
         # input image dimensions
         img_rows, img_cols = 28, 28
 
@@ -74,8 +69,8 @@ class Model:
         X_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 1)
         X_test = X_test.reshape(X_test.shape[0], img_rows, img_cols, 1)
 
-        print('X_train:', X_train.shape)
-        print('X_test:', X_test.shape)
+        print('Intermediate X_train:', X_train.shape)
+        print('Intermediate X_test:', X_test.shape)
 
         # Reshaping all images into 28*28 for pre-processing
         X_train = X_train.reshape(X_train.shape[0], 28, 28)
@@ -95,12 +90,19 @@ class Model:
         X_train = X_train.reshape(X_train.shape[0], 784, )
 
         X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+
+        print('EMNIST data loaded: train:', len(X_train), 'test:', len(X_test))
+        print('Flattened X_train:', X_train.shape)
+        print('Y_train:', Y_train.shape)
+        print('Flattened X_test:', X_test.shape)
+        print('Y_test:', Y_test.shape)
+
         X_test = X_test.reshape(X_test.shape[0], 784, )
 
         self.X_train = X_train
-        self.Y_train = y_train
+        self.Y_train = Y_train
         self.X_test = X_test
-        self.y_test = y_test
+        self.y_test = Y_test
 
     def character_model(self):
 
@@ -139,13 +141,15 @@ class Model:
 
     def train(self):
 
-        cb_early_stopper = EarlyStopping(monitor='val_loss', patience=EARLY_STOP_PATIENCE)
+        cb_checkpoint = ModelCheckpoint(self.CHECKPOINT_PATH, verbose=1, save_weights_only=True,period=5)
+        cb_early_stopper = EarlyStopping(monitor='val_loss', patience=self.EARLY_STOP_PATIENCE)
         reduce_on_plateau = ReduceLROnPlateau(monitor="val_acc", mode="max", factor=0.1, patience=20, verbose=1)
-        cb_checkpointer = ModelCheckpoint(filepath=MODEL_PATH, monitor='val_acc', save_best_only=False, mode='max')
-        callback_values = [cb_early_stopper, cb_checkpointer, reduce_on_plateau]
+        csv_logger = CSVLogger(self.LOGFILE)
+
+        callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger]
 
         self.model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
-        history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1, epochs=self.EPOCH, callbacks=[cb_checkpointer])
+        history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1, epochs=self.EPOCH, callbacks=callback_values)
 
         plt.figure(figsize=(5,3))
         plt.plot(history.epoch,history.history['loss'])
