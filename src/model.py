@@ -36,11 +36,13 @@ class Model:
     def __init__(self):
         return
 
-    def load_data(self):
+    def load_data(self,data_path=None):
 
         """Loading the EMINST dataset"""
-
-        data = loadmat(os.path.abspath(os.path.join(os.getcwd(),self.DATA_PATH)))
+        if data_path is None:
+            data = loadmat(os.path.abspath(os.path.join(os.getcwd(), self.DATA_PATH)))
+        else:
+            data = loadmat(os.path.abspath(os.path.join(os.getcwd(), data_path)))
 
         # Loading Training Data
         X_train = data["dataset"][0][0][0][0][0][0]
@@ -61,7 +63,9 @@ class Model:
         print('EMNIST data loaded: train:', len(X_train), 'test:', len(X_test))
         print('X_train:', X_train.shape)
         print('y_train:', y_train.shape)
-        print('Y_train:', Y_train.shape)
+        print('X_test:', X_test.shape)
+        print('y_test:', y_test.shape)
+
 
         # input image dimensions
         img_rows, img_cols = 28, 28
@@ -78,11 +82,11 @@ class Model:
         X_test = X_test.reshape(X_test.shape[0], 28, 28)
 
         # for train data
-        for t in range(697932):
+        for t in range(X_train.shape[0]):
             X_train[t] = np.transpose(X_train[t])
 
         # for test data
-        for t in range(116323):
+        for t in range(X_test.shape[0]):
             X_test[t] = np.transpose(X_test[t])
 
         print('Process Complete: Rotated and reversed test and train images!')
