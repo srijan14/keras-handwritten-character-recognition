@@ -27,7 +27,7 @@ import pickle
 
 class Model:
 
-    CHECKPOINT_PATH = "./models/weights.{epoch:02d}-{val_loss:.4f}.hdf5"
+    CHECKPOINT_PATH = "./models/model.{epoch:02d}-{val_loss:.4f}.hdf5"
     CHECKPOINT_DIR = os.path.dirname(CHECKPOINT_PATH)
     LOG_FILE = "./logs/training.log"
 
@@ -119,17 +119,17 @@ class Model:
 
         model = Sequential()
         model.add(Reshape((28, 28, 1), input_shape=(784,)))
-        model.add(Conv2D(32, (3, 3), input_shape=(28, 28, 1)))
+        model.add(Conv2D(32, (5, 5), input_shape=(28, 28, 1)))
         model.add(BatchNormalization(axis=-1))
         model.add(Activation('relu'))
-        model.add(Conv2D(32, (3, 3)))
+        model.add(Conv2D(32, (4, 4)))
         model.add(BatchNormalization(axis=-1))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
         model.add(Conv2D(64, (3, 3)))
         model.add(BatchNormalization(axis=-1))
-        model.add(Activation('relu'))
+        model.add(Activation('sigmoid'))
         model.add(Conv2D(64, (3, 3)))
         model.add(BatchNormalization(axis=-1))
         model.add(Activation('relu'))
@@ -142,8 +142,7 @@ class Model:
         model.add(BatchNormalization())
         model.add(Activation('relu'))
         model.add(Dropout(0.2))
-        model.add(Dense(512, activation='relu', kernel_constraint=maxnorm(3)))
-        model.add(Dropout(0.2))
+
         model.add(Dense(self.NUM_CLASSES))
         model.add(Activation('softmax'))
         print(model.summary())
@@ -215,5 +214,5 @@ class Model:
 
         pred_test_img = pred_img
         pred_test_img = pred_test_img.reshape(1,784,)
-        prediction = mapping[np.argmax(self.model.predict(pred_test_img),axis=1)[0]]
+        prediction = mapping[np.argmax(self.model.predict(pred_test_img), axis=1)[0]]
         print("Predicted Value : {}".format(prediction))
