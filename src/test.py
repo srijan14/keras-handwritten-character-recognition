@@ -5,11 +5,17 @@ if __name__=="__main__":
     if len(sys.argv) !=2 :
         print("Please provide required parameters")
 
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
+        model_path = sys.argv[1]
+        img_path = sys.argv[2]
+    elif len(sys.argv) == 2:
+        img_path = None
         model_path = sys.argv[1]
     else:
+        img_path = None
         model_path = None
 
+
     test_model = Model()
-    test_model.loadmodel()
-    test_model.test()
+    test_model.loadmodel(path=model_path)
+    test_model.test(img_path=img_path)

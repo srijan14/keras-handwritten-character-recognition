@@ -199,20 +199,29 @@ class Model:
             print("Image path wrong. Loading from default path")
             img_path = self.TEST_PATH
 
-        img_path = os.path.abspath(os.path.join(os.getcwd(), img_path))
         image = cv2.imread(img_path)
-        image = cv2.resize(image, (28, 28))
+        image = cv2.resize(image, (28, 28),interpolation=cv2.INTER_CUBIC)
         print("Image shape {}".format(image.shape))
 
         # grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # binary
         ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+
+        kernel = np.ones((3, 3), np.uint8)
+
         # dilation
-        kernel = np.ones((5, 5), np.uint8)
         pred_img = cv2.dilate(thresh, kernel, iterations=1)
 
+        #erode
+        pred_img = cv2.erode(pred_img, kernel, iterations=1)
+
+        pred_img = pred_img/255.0
+        plt.imshow(pred_img,cmap="gray")
+        plt.show()
+
         pred_test_img = pred_img
-        pred_test_img = pred_test_img.reshape(1,784,)
+        pred_test_img = pred_test_img.reshape(1,784)
         prediction = mapping[np.argmax(self.model.predict(pred_test_img), axis=1)[0]]
         print("Predicted Value : {}".format(prediction))
