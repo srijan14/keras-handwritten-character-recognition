@@ -3,7 +3,7 @@ from src.model import Model
 
 if __name__=="__main__":
     if len(sys.argv) !=2 :
-        print("Please provide required parameters")
+        print("Please provide required parameters. Example run\npython src/test.py  models/model.01-1.1955.hdf5 data/test/s.jpg")
 
     if len(sys.argv) == 3:
         model_path = sys.argv[1]

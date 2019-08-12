@@ -2,10 +2,7 @@ import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=""
 
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Activation, Dropout, Flatten, MaxPooling2D, BatchNormalization, Reshape
-from keras.constraints import maxnorm
-from keras.layers.convolutional import Conv2D
+from keras.models import load_model
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau, CSVLogger
 from keras.optimizers import Adam
@@ -24,6 +21,7 @@ from scipy.io import loadmat
 import cv2
 import pickle
 
+from src.define_model import define_model
 
 class Model:
 
@@ -38,6 +36,7 @@ class Model:
     EPOCH = 1
     NUM_CLASSES = 62
 
+    #Change below parameter to false, to start training from scratch
     LOAD_MODEL = True
     LOAD_MODEL_NAME = "./models/model.hdf5"
 
@@ -117,37 +116,7 @@ class Model:
 
     def character_model(self):
 
-        model = Sequential()
-        model.add(Reshape((28, 28, 1), input_shape=(784,)))
-        model.add(Conv2D(32, (5, 5), input_shape=(28, 28, 1)))
-        model.add(BatchNormalization(axis=-1))
-        model.add(Activation('relu'))
-        model.add(Conv2D(32, (4, 4)))
-        model.add(BatchNormalization(axis=-1))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        model.add(Conv2D(64, (3, 3)))
-        model.add(BatchNormalization(axis=-1))
-        model.add(Activation('sigmoid'))
-        model.add(Conv2D(64, (3, 3)))
-        model.add(BatchNormalization(axis=-1))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        model.add(Flatten())
-
-        # Fully connected layer
-        model.add(Dense(512))
-        model.add(BatchNormalization())
-        model.add(Activation('relu'))
-        model.add(Dropout(0.2))
-
-        model.add(Dense(self.NUM_CLASSES))
-        model.add(Activation('softmax'))
-        print(model.summary())
-        self.model = model
-
+        self.model = define_model(self.NUM_CLASSES)
 
     def loadmodel(self,path=None):
         if path is not None and os.path.exists(path):
@@ -218,8 +187,8 @@ class Model:
         pred_img = cv2.erode(pred_img, kernel, iterations=1)
 
         pred_img = pred_img/255.0
-        plt.imshow(pred_img,cmap="gray")
-        plt.show()
+        # plt.imshow(pred_img,cmap="gray")
+        # plt.show()
 
         pred_test_img = pred_img
         pred_test_img = pred_test_img.reshape(1,784)
