@@ -22,24 +22,9 @@ import cv2
 import pickle
 
 from src.define_model import define_model
+from src.constants import *
 
 class Model:
-
-    CHECKPOINT_PATH = "./models/model.{epoch:02d}-{val_loss:.4f}.hdf5"
-    CHECKPOINT_DIR = os.path.dirname(CHECKPOINT_PATH)
-    LOG_FILE = "./logs/training.log"
-
-    DATA_PATH = "./data/emnist-byclass.mat"
-    TEST_PATH = "./data/test/test.png"
-    EARLY_STOP_PATIENCE = 10
-    BATCH_SIZE = 128
-    EPOCH = 1
-    NUM_CLASSES = 62
-
-    #Change below parameter to false, to start training from scratch
-    LOAD_MODEL = True
-    LOAD_MODEL_NAME = "./models/model.hdf5"
-
 
     def __init__(self):
         self.model = None
@@ -54,7 +39,7 @@ class Model:
 
         """Loading the EMINST dataset"""
         if data_path is None:
-            data = loadmat(os.path.abspath(os.path.join(os.getcwd(), self.DATA_PATH)))
+            data = loadmat(os.path.abspath(os.path.join(os.getcwd(), DATA_PATH)))
         else:
             data = loadmat(os.path.abspath(os.path.join(os.getcwd(), data_path)))
 
@@ -71,8 +56,8 @@ class Model:
         X_test /= 255.0
 
         # one-hot encoding:
-        Y_train = np_utils.to_categorical(y_train, self.NUM_CLASSES)
-        Y_test = np_utils.to_categorical(y_test, self.NUM_CLASSES)
+        Y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
+        Y_test = np_utils.to_categorical(y_test, NUM_CLASSES)
 
         # input image dimensions
         img_rows, img_cols = 28, 28
@@ -116,32 +101,32 @@ class Model:
 
     def character_model(self):
 
-        self.model = define_model(self.NUM_CLASSES)
+        self.model = define_model(NUM_CLASSES)
 
     def loadmodel(self,path=None):
         if path is not None and os.path.exists(path):
             self.model = load_model(path)
         else:
-            if path is None and os.path.exists(self.LOAD_MODEL_NAME):
-                self.model = load_model(self.LOAD_MODEL_NAME)
+            if path is None and os.path.exists(LOAD_MODEL_NAME):
+                self.model = load_model(LOAD_MODEL_NAME)
         return
 
 
     def train(self):
 
-        cb_checkpoint = ModelCheckpoint(self.CHECKPOINT_PATH, verbose=1, save_weights_only=False, period=1)
-        cb_early_stopper = EarlyStopping(monitor='val_loss', patience=self.EARLY_STOP_PATIENCE)
+        cb_checkpoint = ModelCheckpoint(CHECKPOINT_PATH, verbose=1, save_weights_only=False, period=1)
+        cb_early_stopper = EarlyStopping(monitor='val_loss', patience=EARLY_STOP_PATIENCE)
         reduce_on_plateau = ReduceLROnPlateau(monitor="val_acc", mode="max", factor=0.1, patience=20, verbose=1)
-        csv_logger = CSVLogger(self.LOG_FILE)
+        csv_logger = CSVLogger(LOG_FILE)
 
         callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger]
 
-        if self.LOAD_MODEL:
+        if LOAD_MODEL:
             self.loadmodel()
 
         self.model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
         history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1,
-                                 epochs=self.EPOCH, callbacks=callback_values)
+                                 epochs=EPOCH, callbacks=callback_values,batch_size=BATCH_SIZE)
 
         plt.figure(figsize=(5,3))
         plt.plot(history.epoch,history.history['loss'])
@@ -166,7 +151,7 @@ class Model:
 
         if img_path is None:
             print("Image path wrong. Loading from default path")
-            img_path = self.TEST_PATH
+            img_path = TEST_PATH
 
         image = cv2.imread(img_path)
         image = cv2.resize(image, (28, 28),interpolation=cv2.INTER_CUBIC)
