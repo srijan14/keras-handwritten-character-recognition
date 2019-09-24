@@ -16,10 +16,10 @@ TEST_PATH = "./data/test/test.png"
 EARLY_STOP_PATIENCE = 10
 
 #Batch size
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 
 #Number of epochs
-EPOCH = 1
+EPOCH = 100
 
 # Change below parameter to true, to resume training
 LOAD_MODEL = False

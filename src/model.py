@@ -116,7 +116,7 @@ class Model:
 
         cb_checkpoint = ModelCheckpoint(CHECKPOINT_PATH, verbose=1, save_weights_only=False, period=1)
         cb_early_stopper = EarlyStopping(monitor='val_loss', patience=EARLY_STOP_PATIENCE)
-        reduce_on_plateau = ReduceLROnPlateau(monitor="val_acc", mode="max", factor=0.1, patience=20, verbose=1)
+        reduce_on_plateau = ReduceLROnPlateau(monitor="val_accuracy", mode="max", factor=0.1, patience=20, verbose=1)
         csv_logger = CSVLogger(LOG_FILE)
 
         callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger]
