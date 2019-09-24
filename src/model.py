@@ -136,8 +136,14 @@ class Model:
         plt.plot(history.epoch,history.history['acc'])
         plt.title('accuracy')
 
+    def test(self):
 
-    def test(self, img_path=None):
+        if LOAD_MODEL:
+            self.loadmodel()
+        accuracy  = self.model.evaluate(self.X_test,self.Y_test,batch_size=BATCH_SIZE)
+        print("Accuracy on test data is {}".format(accuracy))
+
+    def predict(self, img_path=None):
         try:
             with open(os.path.abspath(os.path.join(os.getcwd(), "./data/mapping.pkl"))) as f:
                 mapping = pickle.load(f)

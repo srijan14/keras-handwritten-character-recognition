@@ -15,3 +15,4 @@ if __name__=="__main__":
     train_model.load_data(args.data)
     train_model.character_model()
     train_model.train()
+    train_model.test()

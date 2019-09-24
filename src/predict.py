@@ -15,4 +15,4 @@ if __name__=="__main__":
 
     test_model = Model()
     test_model.loadmodel(path=args.model)
-    test_model.test(img_path=args.data)
+    test_model.predict(img_path=args.data)
