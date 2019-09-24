@@ -1,6 +1,9 @@
 import os
+from src.define_model import define_model
+from src.constants import *
+
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]=""
+os.environ["CUDA_VISIBLE_DEVICES"]=CUDA_VISIBLE_DEVICES
 
 from keras.models import load_model
 from keras.utils import np_utils
@@ -20,9 +23,6 @@ import numpy as np
 from scipy.io import loadmat
 import cv2
 import pickle
-
-from src.define_model import define_model
-from src.constants import *
 
 class Model:
 
@@ -124,7 +124,7 @@ class Model:
         if LOAD_MODEL:
             self.loadmodel()
 
-        self.model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
+        self.model.compile(loss='categorical_crossentropy', optimizer=Adam(0.00001), metrics=['accuracy'])
         history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1,
                                  epochs=EPOCH, callbacks=callback_values,batch_size=BATCH_SIZE)
 

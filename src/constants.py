@@ -4,6 +4,7 @@ import os
 CHECKPOINT_PATH = "./models/model.{epoch:02d}-{val_loss:.4f}.hdf5"
 CHECKPOINT_DIR = os.path.dirname(CHECKPOINT_PATH)
 LOG_FILE = "./logs/training.log"
+CUDA_VISIBLE_DEVICES="0"
 
 #Training Data Path
 DATA_PATH = "./data/emnist-byclass.mat"
