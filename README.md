@@ -24,4 +24,4 @@ Pretrained Model trained on eminst by class dataset is already present inside th
     
 ## Prediction
 
-    python src/test.py --data ./data/test/s.jpg --model ./models/model.hdf5'
+    python src/test.py --data ./data/test/s.jpg --model ./models/model.hdf5
