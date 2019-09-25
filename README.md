@@ -6,7 +6,7 @@ This repository performs character recognition on  [EMINST](https://www.nist.gov
 
 ## Pretrained Models
 
-Pretrained Model trained on eminst by class dataset is already present inside the *models* folder
+Pretrained Model trained on eminst by class dataset is already present inside the *[models](https://github.com/srijan14/handwritten-character-recognition/tree/master/models)* folder
 The provided model achieved a testing accuracy of 92.43%
 
 ## Train
