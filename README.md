@@ -1,5 +1,5 @@
 # Handwritten-Character-Recognition
-Handwritten character recognition using keras.
+Handwritten character recognition using keras. The model provided can also be used as a baseline model for applying transfer learning to attain better accuracy.
 
 ## Installing Requirements
     pip install -r requirements.txt
