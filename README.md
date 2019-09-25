@@ -1,4 +1,5 @@
 # Handwritten-Character-Recognition
+Handwritten character recognition using keras.
 This repository performs character recognition on  [EMINST](https://www.nist.gov/node/1298471/emnist-dataset) dataset.
 
 ## Installing Requirements
