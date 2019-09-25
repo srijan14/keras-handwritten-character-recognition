@@ -4,6 +4,7 @@ import os
 CHECKPOINT_PATH = "./models/model.{epoch:02d}-{val_loss:.4f}.hdf5"
 CHECKPOINT_DIR = os.path.dirname(CHECKPOINT_PATH)
 LOG_FILE = "./logs/training.log"
+TENSORBOARD_LOGS="./tensorboard"
 CUDA_VISIBLE_DEVICES=""
 
 #Training Data Path

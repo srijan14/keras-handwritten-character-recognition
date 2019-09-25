@@ -18,7 +18,6 @@ assert(LV(__version__) >= LV("2.0.0"))
 from tensorflow.python.client import device_lib
 print(device_lib.list_local_devices())
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
 import cv2
@@ -117,25 +116,20 @@ class Model:
         cb_checkpoint = ModelCheckpoint(CHECKPOINT_PATH, verbose=1, save_weights_only=False, period=1)
         cb_early_stopper = EarlyStopping(monitor='val_loss', patience=EARLY_STOP_PATIENCE)
         reduce_on_plateau = ReduceLROnPlateau(monitor="val_accuracy", mode="max", factor=0.1, patience=20, verbose=1)
-        cb_tensorboard = TensorBoard(log_dir='./logs')
+        cb_tensorboard = TensorBoard(log_dir=TENSORBOARD_LOGS)
         csv_logger = CSVLogger(LOG_FILE)
 
         callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger,cb_tensorboard]
 
-        if pretrained_model_path is not None and os.path.exists(os.path.abspath(os.getcwd(),pretrained_model_path)):
+        if pretrained_model_path is not None and os.path.exists(os.path.abspath(os.path.join(os.getcwd(),pretrained_model_path))):
             self.loadmodel(pretrained_model_path)
+            if self.model is not None:
+                print("Starting training from the pretrained model")
 
         self.model.compile(loss='categorical_crossentropy', optimizer=Adam(0.00001), metrics=['accuracy'])
         history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1,
                                  epochs=EPOCH, callbacks=callback_values,batch_size=BATCH_SIZE)
 
-        plt.figure(figsize=(5,3))
-        plt.plot(history.epoch,history.history['loss'])
-        plt.title('loss')
-
-        plt.figure(figsize=(5,3))
-        plt.plot(history.epoch,history.history['acc'])
-        plt.title('accuracy')
 
     def test(self,model_path=None):
         if model_path is None and self.model is None:
@@ -172,5 +166,5 @@ class Model:
         pred_img = cv2.resize(pred_img, (28, 28))
         pred_img = pred_img / 255.0
         pred_img = pred_img.reshape(1,784)
-        prediction = mapping[np.argmax(self.model.predict_clas(pred_img), axis=1)[0]]
+        prediction = mapping[self.model.predict_classes(pred_img)[0]]
         print("\n\nPredicted Value : {}".format(prediction))
