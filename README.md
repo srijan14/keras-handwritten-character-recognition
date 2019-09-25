@@ -1,15 +1,13 @@
 # Handwritten-Character-Recognition
 This repository performs character recognition on  [EMINST](https://www.nist.gov/node/1298471/emnist-dataset) dataset.
 
-## Dependencies
-1. Python2,Python3
-
 ## Installing Requirements
     pip install -r requirements.txt
 
 ## Pretrained Models
 
 Pretrained Model trained on eminst by class dataset is already present inside the *models* folder
+The provided model achieved a testing accuracy of 92.43%
 
 ## Train
 
@@ -19,9 +17,29 @@ Pretrained Model trained on eminst by class dataset is already present inside th
    
    Also the model architecture can be changes from inside **src/define_mode.py**
    
-    python src/train.py --data ./data/emnist-byclass.mat
+    python src/train.py --start_from ./models/model.h5 
     
+    --data : path of the training data(.mat format)
+    --start_from : path of the pretrained models, to resume the training from pretrained model 
     
 ## Prediction
 
-    python src/test.py --data ./data/test/s.jpg --model ./models/model.hdf5
+To make a prediction on a test image:
+
+    python src/predict.py --data ./data/test/test.jpg--model ./models/model.h5
+    
+    --model :  path of the trained model
+    --data  :  path of the image to make prediction on
+
+   
+<center style="padding: 40px"><img width="100%" height="50%" src="./images/demo.png" /></center>
+
+
+# Test
+
+To evaluate the model on test data
+
+    python src/test.py --model models/model.h5 --data ./data/emnist-byclass.mat
+    
+    --model : path of the trained model
+    --data  : path of the mat file

@@ -137,7 +137,7 @@ class Model:
             exit()
         self.loadmodel(model_path)
         accuracy = self.model.evaluate(self.X_test,self.Y_test,batch_size=BATCH_SIZE)
-        print("Accuracy on test data is {}".format(accuracy))
+        print("Accuracy on test data is {}".format(accuracy[1]))
 
     def predict(self, img_path=None,model_path=None):
 
