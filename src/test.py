@@ -14,4 +14,5 @@ if __name__=="__main__":
         exit()
 
     test_model = Model()
-    test_model.predict(model_path=args.model, img_path=args.data)
+    test_model.load_data(args.data)
+    test_model.test(model_path=args.model)

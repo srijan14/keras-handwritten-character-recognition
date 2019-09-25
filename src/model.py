@@ -7,7 +7,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]=CUDA_VISIBLE_DEVICES
 
 from keras.models import load_model
 from keras.utils import np_utils
-from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau, CSVLogger
+from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau, CSVLogger, TensorBoard
 from keras.optimizers import Adam
 
 from keras import backend as K
@@ -104,25 +104,26 @@ class Model:
         self.model = define_model(NUM_CLASSES)
 
     def loadmodel(self,path=None):
+
         if path is not None and os.path.exists(path):
             self.model = load_model(path)
         else:
-            if path is None and os.path.exists(LOAD_MODEL_NAME):
-                self.model = load_model(LOAD_MODEL_NAME)
+            print("Unable to find model at the specified path")
         return
 
 
-    def train(self):
+    def train(self,pretrained_model_path=None):
 
         cb_checkpoint = ModelCheckpoint(CHECKPOINT_PATH, verbose=1, save_weights_only=False, period=1)
         cb_early_stopper = EarlyStopping(monitor='val_loss', patience=EARLY_STOP_PATIENCE)
         reduce_on_plateau = ReduceLROnPlateau(monitor="val_accuracy", mode="max", factor=0.1, patience=20, verbose=1)
+        cb_tensorboard = TensorBoard(log_dir='./logs')
         csv_logger = CSVLogger(LOG_FILE)
 
-        callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger]
+        callback_values = [cb_checkpoint,cb_early_stopper,reduce_on_plateau,csv_logger,cb_tensorboard]
 
-        if LOAD_MODEL:
-            self.loadmodel()
+        if pretrained_model_path is not None and os.path.exists(os.path.abspath(os.getcwd(),pretrained_model_path)):
+            self.loadmodel(pretrained_model_path)
 
         self.model.compile(loss='categorical_crossentropy', optimizer=Adam(0.00001), metrics=['accuracy'])
         history = self.model.fit(self.X_train, self.Y_train, validation_split=0.1,
@@ -136,14 +137,25 @@ class Model:
         plt.plot(history.epoch,history.history['acc'])
         plt.title('accuracy')
 
-    def test(self):
-
-        if LOAD_MODEL:
-            self.loadmodel()
-        accuracy  = self.model.evaluate(self.X_test,self.Y_test,batch_size=BATCH_SIZE)
+    def test(self,model_path=None):
+        if model_path is None and self.model is None:
+            print("No model found at specified path")
+            exit()
+        self.loadmodel(model_path)
+        accuracy = self.model.evaluate(self.X_test,self.Y_test,batch_size=BATCH_SIZE)
         print("Accuracy on test data is {}".format(accuracy))
 
-    def predict(self, img_path=None):
+    def predict(self, img_path=None,model_path=None):
+
+        if model_path is None:
+            print("No model found at specified path")
+            exit()
+
+        if img_path is None:
+            print("Invalid image path provided. Unable to make a prediction")
+            exit()
+        self.loadmodel(model_path
+                       )
         try:
             with open(os.path.abspath(os.path.join(os.getcwd(), "./data/mapping.pkl"))) as f:
                 mapping = pickle.load(f)
@@ -151,37 +163,14 @@ class Model:
             print(e)
             mapping = ['0', '1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
-        if self.model is None:
-            print("No model found")
-            exit()
-
-        if img_path is None:
-            print("Image path wrong. Loading from default path")
-            img_path = TEST_PATH
-
-        image = cv2.imread(img_path)
-        image = cv2.resize(image, (28, 28),interpolation=cv2.INTER_CUBIC)
-        print("Image shape {}".format(image.shape))
-
-        # grayscale
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # binary
-        ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
-
-        kernel = np.ones((3, 3), np.uint8)
-
-        # dilation
-        pred_img = cv2.dilate(thresh, kernel, iterations=1)
-
-        #erode
-        pred_img = cv2.erode(pred_img, kernel, iterations=1)
-
-        pred_img = pred_img/255.0
-        # plt.imshow(pred_img,cmap="gray")
-        # plt.show()
-
-        pred_test_img = pred_img
-        pred_test_img = pred_test_img.reshape(1,784)
-        prediction = mapping[np.argmax(self.model.predict(pred_test_img), axis=1)[0]]
-        print("Predicted Value : {}".format(prediction))
+        img = cv2.imread(img_path, 0)
+        # Otsu's thresholding after Gaussian filtering
+        blur = cv2.GaussianBlur(img, (5, 5), 0)
+        ret3, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        th3 = cv2.subtract(255, th3)
+        pred_img = th3
+        pred_img = cv2.resize(pred_img, (28, 28))
+        pred_img = pred_img / 255.0
+        pred_img = pred_img.reshape(1,784)
+        prediction = mapping[np.argmax(self.model.predict_clas(pred_img), axis=1)[0]]
+        print("\n\nPredicted Value : {}".format(prediction))
