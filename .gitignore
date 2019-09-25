@@ -1,4 +1,5 @@
 *.log
+*.ipynb
 data/test/*
 env/*
 .DS_Store
