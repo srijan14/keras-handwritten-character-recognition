@@ -18,7 +18,7 @@ The provided model achieves a **testing accuracy** of **92.43%**
    
    Also the model architecture can be changes from inside **src/define_mode.py**
    
-    python src/train.py --start_from ./models/model.h5 
+    python src/train.py  --data ./data/emnist-byclass.mat --start_from ./models/model.h5 
     
     --data : path of the training data(.mat format)
     --start_from : path of the pretrained models, to resume the training from pretrained model 
