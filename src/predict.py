@@ -1,4 +1,4 @@
-from src.model import Model
+from model import Model
 import argparse
 import os
 

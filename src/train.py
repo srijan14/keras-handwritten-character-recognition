@@ -1,6 +1,6 @@
 import os
 import argparse
-from src.model import Model
+from model import Model
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Training on the EMNIST dataset')

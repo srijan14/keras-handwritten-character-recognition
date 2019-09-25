@@ -1,6 +1,6 @@
 import os
-from src.define_model import define_model
-from src.constants import *
+from define_model import define_model
+from constants import *
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=CUDA_VISIBLE_DEVICES
