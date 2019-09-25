@@ -1,13 +1,12 @@
 # Handwritten-Character-Recognition
 Handwritten character recognition using keras.
-This repository performs character recognition on  [EMINST](https://www.nist.gov/node/1298471/emnist-dataset) dataset.
 
 ## Installing Requirements
     pip install -r requirements.txt
 
 ## Pretrained Models
 
-Pretrained Model trained on EMNIST dataset is present inside the *[models](https://github.com/srijan14/handwritten-character-recognition/tree/master/models)* folder
+Pretrained Model trained on [EMNIST](https://www.nist.gov/node/1298471/emnist-dataset) dataset is present inside the *[models](https://github.com/srijan14/handwritten-character-recognition/tree/master/models)* folder
 
 The provided model achieves a **testing accuracy** of **92.43%**
 
